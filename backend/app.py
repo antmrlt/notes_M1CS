@@ -1,5 +1,6 @@
+import base64
+import json
 import os
-import time
 import requests
 from flask import Flask, jsonify, request, send_from_directory
 from flask_cors import CORS
@@ -7,23 +8,20 @@ from flask_cors import CORS
 app = Flask(__name__)
 CORS(app)
 
-NOTES_URL = "https://raw.githubusercontent.com/Gladrat/notes_M1CS/main/notes.json"
+NOTES_API_URL = "https://api.github.com/repos/Gladrat/notes_M1CS/contents/notes.json"
 FRONTEND_DIR = os.path.join(os.path.dirname(__file__), "..", "frontend")
 
-_cache = {"data": None, "ts": 0}
-
-
 def fetch_notes():
-    now = time.time()
-    if _cache["data"] and now - _cache["ts"] < 2:
-        return _cache["data"]
-    r = requests.get(NOTES_URL, timeout=5)
+    headers = {"Accept": "application/vnd.github+json", "User-Agent": "notes-app"}
+    token = os.environ.get("NOTES_API_TOKEN")
+    if token:
+        headers["Authorization"] = f"Bearer {token}"
+    r = requests.get(NOTES_API_URL, timeout=5, headers=headers)
     r.raise_for_status()
-    data = r.json()
+    content = base64.b64decode(r.json()["content"]).decode("utf-8")
+    data = json.loads(content)
     if "etudiants" not in data:
         raise ValueError("invalid structure")
-    _cache["data"] = data
-    _cache["ts"] = now
     return data
 
 

@@ -29,7 +29,10 @@ curl http://localhost:5000/search?q=alice
 
 ## Lancer le projet
 
+Copier `.env.example` en `.env` et renseigner un token GitHub, puis :
+
 ```bash
+cp .env.example .env
 docker-compose up -d
 ```
 

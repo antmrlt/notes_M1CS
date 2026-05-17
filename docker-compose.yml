@@ -7,6 +7,7 @@ services:
       - .:/app
     environment:
       - FLASK_ENV=production
+      - NOTES_API_TOKEN=${NOTES_API_TOKEN:-}
     command: >
       bash -c "pip install flask flask-cors requests -q &&
                python /app/backend/app.py"
